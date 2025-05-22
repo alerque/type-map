@@ -424,7 +424,7 @@ fn test_type_map() {
 
     let entry = map.entry::<MyType2>();
 
-    let mut v = entry.or_insert_with(MyType2::default);
+    let v = entry.or_insert_with(MyType2::default);
 
     v.0 = "Hello".into();
 
