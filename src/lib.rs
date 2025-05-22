@@ -120,7 +120,7 @@ impl TypeMap {
     /// If a value of this type already exists, it will be returned.
     pub fn insert_kv_pair(&mut self, KvPair(key, value): KvPair) -> Option<KvPair> {
         self.map
-            .get_or_insert_with(|| FxHashMap::default())
+            .get_or_insert_with(FxHashMap::default)
             .insert(key, value)
             .map(|old_value| KvPair(key, old_value))
     }
@@ -130,7 +130,7 @@ impl TypeMap {
     /// If a value of this type already exists, it will be returned.
     pub fn insert<T: 'static>(&mut self, val: T) -> Option<T> {
         self.map
-            .get_or_insert_with(|| FxHashMap::default())
+            .get_or_insert_with(FxHashMap::default)
             .insert(TypeId::of::<T>(), Box::new(val))
             .and_then(|boxed| boxed.downcast().ok().map(|boxed| *boxed))
     }
@@ -179,7 +179,7 @@ impl TypeMap {
     pub fn entry<T: 'static>(&mut self) -> Entry<T> {
         match self
             .map
-            .get_or_insert_with(|| FxHashMap::default())
+            .get_or_insert_with(FxHashMap::default)
             .entry(TypeId::of::<T>())
         {
             hash_map::Entry::Occupied(e) => Entry::Occupied(OccupiedEntry {
@@ -325,7 +325,7 @@ pub mod concurrent {
         /// If a value of this type already exists, it will be returned.
         pub fn insert_kv_pair(&mut self, KvPair(key, value): KvPair) -> Option<KvPair> {
             self.map
-                .get_or_insert_with(|| FxHashMap::default())
+                .get_or_insert_with(FxHashMap::default)
                 .insert(key, value)
                 .map(|old_value| KvPair(key, old_value))
         }
@@ -335,7 +335,7 @@ pub mod concurrent {
         /// If a value of this type already exists, it will be returned.
         pub fn insert<T: Send + Sync + 'static>(&mut self, val: T) -> Option<T> {
             self.map
-                .get_or_insert_with(|| FxHashMap::default())
+                .get_or_insert_with(FxHashMap::default)
                 .insert(TypeId::of::<T>(), Box::new(val))
                 .and_then(|boxed| (boxed as Box<dyn Any>).downcast().ok().map(|boxed| *boxed))
         }
@@ -384,7 +384,7 @@ pub mod concurrent {
         pub fn entry<T: 'static + Send + Sync>(&mut self) -> Entry<T> {
             match self
                 .map
-                .get_or_insert_with(|| FxHashMap::default())
+                .get_or_insert_with(FxHashMap::default)
                 .entry(TypeId::of::<T>())
             {
                 hash_map::Entry::Occupied(e) => Entry::Occupied(OccupiedEntry {
