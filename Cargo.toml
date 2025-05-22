@@ -10,4 +10,4 @@ keywords = ["typemap", "extensions", "hashmap"]
 description = "Provides a typemap container with FxHashMap"
 
 [dependencies]
-rustc-hash = "1"
+rustc-hash = "2"
