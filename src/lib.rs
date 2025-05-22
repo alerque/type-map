@@ -15,7 +15,10 @@ impl KvPair {
 
     pub fn extract<T: 'static>(self) -> Result<T, Self> {
         let KvPair(key, value) = self;
-        value.downcast().map(|boxed| *boxed).map_err(|e| KvPair(key, e))
+        value
+            .downcast()
+            .map(|boxed| *boxed)
+            .map_err(|e| KvPair(key, e))
     }
 }
 
@@ -45,7 +48,11 @@ impl<'a, T: 'static> OccupiedEntry<'a, T> {
 
     /// Sets the value of the entry, and returns the entry's old value.
     pub fn insert(&mut self, value: T) -> T {
-        self.data.insert(Box::new(value)).downcast().map(|boxed| *boxed).unwrap()
+        self.data
+            .insert(Box::new(value))
+            .downcast()
+            .map(|boxed| *boxed)
+            .unwrap()
     }
 
     /// Takes the value out of the entry, and returns it.    
@@ -130,7 +137,10 @@ impl TypeMap {
 
     /// Check if container contains value for type
     pub fn contains<T: 'static>(&self) -> bool {
-        self.map.as_ref().and_then(|m| m.get(&TypeId::of::<T>())).is_some()
+        self.map
+            .as_ref()
+            .and_then(|m| m.get(&TypeId::of::<T>()))
+            .is_some()
     }
 
     /// Get a reference to a value previously inserted on this `TypeMap`.
@@ -167,13 +177,19 @@ impl TypeMap {
 
     /// Get an entry in the `TypeMap` for in-place manipulation.
     pub fn entry<T: 'static>(&mut self) -> Entry<T> {
-        match self.map.get_or_insert_with(|| FxHashMap::default()).entry(TypeId::of::<T>()) {
-            hash_map::Entry::Occupied(e) => {
-                Entry::Occupied(OccupiedEntry { data: e, marker: PhantomData })
-            }
-            hash_map::Entry::Vacant(e) => {
-                Entry::Vacant(VacantEntry { data: e, marker: PhantomData })
-            }
+        match self
+            .map
+            .get_or_insert_with(|| FxHashMap::default())
+            .entry(TypeId::of::<T>())
+        {
+            hash_map::Entry::Occupied(e) => Entry::Occupied(OccupiedEntry {
+                data: e,
+                marker: PhantomData,
+            }),
+            hash_map::Entry::Vacant(e) => Entry::Vacant(VacantEntry {
+                data: e,
+                marker: PhantomData,
+            }),
         }
     }
 }
@@ -199,10 +215,13 @@ pub mod concurrent {
         pub fn extract<T: 'static + Send + Sync>(self) -> Result<T, Self> {
             let KvPair(key, value) = self;
             if value.is::<T>() {
-                Ok((value as Box<dyn Any>).downcast().map(|boxed| *boxed).unwrap())
+                Ok((value as Box<dyn Any>)
+                    .downcast()
+                    .map(|boxed| *boxed)
+                    .unwrap())
             } else {
                 Err(KvPair(key, value))
-            }            
+            }
         }
     }
 
@@ -240,7 +259,10 @@ pub mod concurrent {
 
         /// Takes the value out of the entry, and returns it.    
         pub fn remove(self) -> T {
-            (self.data.remove() as Box<dyn Any>).downcast().map(|boxed| *boxed).unwrap()
+            (self.data.remove() as Box<dyn Any>)
+                .downcast()
+                .map(|boxed| *boxed)
+                .unwrap()
         }
     }
 
@@ -320,7 +342,10 @@ pub mod concurrent {
 
         /// Check if container contains value for type
         pub fn contains<T: 'static>(&self) -> bool {
-            self.map.as_ref().and_then(|m| m.get(&TypeId::of::<T>())).is_some()
+            self.map
+                .as_ref()
+                .and_then(|m| m.get(&TypeId::of::<T>()))
+                .is_some()
         }
 
         /// Get a reference to a value previously inserted on this `TypeMap`.
@@ -357,13 +382,19 @@ pub mod concurrent {
 
         /// Get an entry in the `TypeMap` for in-place manipulation.
         pub fn entry<T: 'static + Send + Sync>(&mut self) -> Entry<T> {
-            match self.map.get_or_insert_with(|| FxHashMap::default()).entry(TypeId::of::<T>()) {
-                hash_map::Entry::Occupied(e) => {
-                    Entry::Occupied(OccupiedEntry { data: e, marker: PhantomData })
-                }
-                hash_map::Entry::Vacant(e) => {
-                    Entry::Vacant(VacantEntry { data: e, marker: PhantomData })
-                }
+            match self
+                .map
+                .get_or_insert_with(|| FxHashMap::default())
+                .entry(TypeId::of::<T>())
+            {
+                hash_map::Entry::Occupied(e) => Entry::Occupied(OccupiedEntry {
+                    data: e,
+                    marker: PhantomData,
+                }),
+                hash_map::Entry::Vacant(e) => Entry::Vacant(VacantEntry {
+                    data: e,
+                    marker: PhantomData,
+                }),
             }
         }
     }
